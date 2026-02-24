@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Code 128 Barcode Generator</title>
+
+<!-- JsBarcode CDN -->
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #121212;
+        color: #f1f1f1;
+        text-align: center;
+        margin: 0;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+    }
+
+    h1 {
+        margin-bottom: 25px;
+        color: #ffffff;
+        letter-spacing: 1px;
+    }
+
+    .container {
+        max-width: 900px;
+        margin: auto;
+        flex: 1;
+    }
+
+    .input-section {
+        margin-bottom: 20px;
+    }
+
+    input {
+        padding: 12px;
+        font-size: 18px;
+        width: 320px;
+        border-radius: 8px;
+        border: 1px solid #333;
+        background: #1e1e1e;
+        color: white;
+        outline: none;
+        text-align: center;
+        transition: 0.2s;
+    }
+
+    input::placeholder {
+        color: #888;
+    }
+
+    input:focus {
+        border-color: #2563eb;
+        box-shadow: 0 0 10px rgba(37,99,235,0.6);
+    }
+
+    .barcode-wrapper {
+        margin: 30px auto;
+        padding: 30px;
+        background: #ffffff; /* white background for barcode */
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+    }
+
+    svg {
+        width: 100%;
+        max-width: 750px;
+        height: 200px;
+    }
+
+    footer {
+        padding: 15px;
+        font-size: 14px;
+        background: #1e1e1e;
+        border-top: 1px solid #2c2c2c;
+        color: #aaa;
+    }
+
+    footer span {
+        color: #ffffff;
+        font-weight: bold;
+    }
+</style>
+</head>
+
+<body>
+
+<h1>Code 128 Barcode Generator</h1>
+
+<div class="container">
+
+    <div class="input-section">
+        <input 
+            type="text" 
+            id="barcodeInput" 
+            placeholder="Start typing to generate barcode..."
+            oninput="generateBarcode()"
+            autofocus
+        >
+    </div>
+
+    <div class="barcode-wrapper">
+        <svg id="barcode"></svg>
+    </div>
+
+</div>
+
+<footer>
+    © <span id="year"></span> yafis_yasar. All Rights Reserved.
+</footer>
+
+<script>
+function generateBarcode() {
+    const value = document.getElementById("barcodeInput").value.trim();
+    const barcode = document.getElementById("barcode");
+
+    if (!value) {
+        barcode.innerHTML = "";
+        return;
+    }
+
+    JsBarcode(barcode, value, {
+        format: "CODE128",
+        lineColor: "#000000",
+        background: "#ffffff",
+        width: 3,
+        height: 160,
+        displayValue: true,
+        fontSize: 28,
+        margin: 10
+    });
+}
+
+// Auto update copyright year
+document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+
+</body>
+</html>
