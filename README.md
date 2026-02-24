@@ -1,7 +1,7 @@
 # 📦 Code 128 Barcode Generator
 
 A simple, modern, and lightweight **Code 128 Barcode Generator** built using HTML, CSS, and JavaScript.
-[Click Here](https://128barcode-generator.vercel.app/) to view
+[Click Here](https://128barcode-generator.vercel.app/) to view.
 This project generates barcodes **live while typing**, with a clean dark theme interface and scanner-friendly output.
 
 ---
