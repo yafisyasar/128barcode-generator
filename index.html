@@ -96,11 +96,13 @@
 
     <div class="input-section">
         <input 
-            type="text" 
-            id="barcodeInput" 
-            placeholder="Start typing to generate barcode..."
-            oninput="generateBarcode()"
-            autofocus
+    type="tel"
+    id="barcodeInput" 
+    placeholder="Enter numbers..."
+    inputmode="numeric"
+    pattern="[0-9]*"
+    oninput="generateBarcode()"
+    autofocus 
         >
     </div>
 
@@ -136,7 +138,6 @@ function generateBarcode() {
     });
 }
 
-// Auto update copyright year
 document.getElementById("year").textContent = new Date().getFullYear();
 </script>
 
