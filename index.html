@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+-<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -73,6 +73,98 @@
         height: 200px;
     }
 
+    .barcode-actions {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 20px;
+    }
+
+    button {
+        padding: 12px 22px;
+        font-size: 15px;
+        font-weight: 600;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        color: #ffffff;
+        background: #2563eb;
+        transition: 0.2s;
+    }
+
+    button:hover:not(:disabled) {
+        background: #1d4ed8;
+        transform: translateY(-1px);
+    }
+
+    button:disabled {
+        background: #3a3a3a;
+        color: #777;
+        cursor: not-allowed;
+    }
+
+    .api-section {
+        margin: 40px auto;
+        padding: 24px;
+        max-width: 750px;
+        background: #1e1e1e;
+        border: 1px solid #333;
+        border-radius: 12px;
+        text-align: left;
+    }
+
+    .api-section h2 {
+        margin: 0 0 8px;
+        color: #ffffff;
+    }
+
+    .api-section p {
+        margin: 6px 0;
+        color: #aaa;
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+    .api-usage {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin: 14px 0;
+    }
+
+    .api-usage code {
+        flex: 1;
+        min-width: 200px;
+        padding: 10px 12px;
+        background: #121212;
+        border: 1px solid #333;
+        border-radius: 8px;
+        color: #7dd3fc;
+        font-size: 14px;
+        word-break: break-all;
+    }
+
+    .api-note code {
+        background: #121212;
+        padding: 2px 6px;
+        border-radius: 4px;
+        color: #7dd3fc;
+    }
+
+    #apiResult {
+        margin-top: 14px;
+        text-align: center;
+    }
+
+    #apiResult img {
+        max-width: 100%;
+        background: #ffffff;
+        border-radius: 8px;
+        padding: 10px;
+    }
+
     footer {
         padding: 15px;
         font-size: 14px;
@@ -110,6 +202,24 @@
         <svg id="barcode"></svg>
     </div>
 
+    <div class="barcode-actions">
+        <button onclick="downloadPNG()" disabled>Download PNG</button>
+        <button onclick="downloadSVG()" disabled>Download SVG</button>
+        <button onclick="printBarcode()" disabled>Print</button>
+    </div>
+
+    <section class="api-section">
+        <h2>Barcode API</h2>
+        <p>Generate barcodes programmatically from any app — perfect for printing labels or integrating with other systems.</p>
+        <div class="api-usage">
+            <code id="apiUrl">/api/barcode?value=1234567890</code>
+            <button onclick="copyApiUrl()">Copy URL</button>
+            <button onclick="testApi()">Test</button>
+        </div>
+        <div id="apiResult"></div>
+        <p class="api-note">Send a <code>GET /api/barcode?value=1234567890</code> or <code>POST /api/barcode</code> with JSON body <code>{ "value": "1234567890" }</code>. The response is a <code>image/png</code> of the Code 128 barcode. Optional params: <code>scale</code> and <code>height</code>. CORS is enabled, so the API can be called from any domain.</p>
+    </section>
+
 </div>
 
 <footer>
@@ -120,8 +230,11 @@
 function generateBarcode() {
     const value = document.getElementById("barcodeInput").value.trim();
     const barcode = document.getElementById("barcode");
+    const hasValue = value.length > 0;
 
-    if (!value) {
+    document.querySelectorAll(".barcode-actions button").forEach(btn => btn.disabled = !hasValue);
+
+    if (!hasValue) {
         barcode.innerHTML = "";
         return;
     }
@@ -136,6 +249,89 @@ function generateBarcode() {
         fontSize: 28,
         margin: 10
     });
+}
+
+function currentSVG() {
+    const barcode = document.getElementById("barcode");
+    const svg = barcode.cloneNode(true);
+    svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+    const box = barcode.getBBox();
+    svg.setAttribute("width", box.width);
+    svg.setAttribute("height", box.height);
+    return svg;
+}
+
+function downloadFile(blob, filename) {
+    const a = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function downloadSVG() {
+    const svg = currentSVG();
+    const blob = new Blob([new XMLSerializer().serializeToString(svg)], { type: "image/svg+xml" });
+    downloadFile(blob, "barcode.svg");
+}
+
+function downloadPNG() {
+    const svg = currentSVG();
+    const url = URL.createObjectURL(new Blob([new XMLSerializer().serializeToString(svg)], { type: "image/svg+xml;charset=utf-8" }));
+    const img = new Image();
+
+    img.onload = () => {
+        const box = svg.getBBox();
+        const canvas = document.createElement("canvas");
+        canvas.width = box.width;
+        canvas.height = box.height;
+        const ctx = canvas.getContext("2d");
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0);
+        URL.revokeObjectURL(url);
+        canvas.toBlob(blob => downloadFile(blob, "barcode.png"), "image/png");
+    };
+
+    img.src = url;
+}
+
+function printBarcode() {
+    const barcode = document.getElementById("barcode");
+    if (!barcode.innerHTML) return;
+
+    const win = window.open("", "_blank", "width=700,height=450");
+    win.document.write(
+        '<!DOCTYPE html><html><head><title>Print Barcode</title>' +
+        '<style>body{margin:0;display:flex;justify-content:center;align-items:center;min-height:100vh;}' +
+        'svg{width:100%;max-width:750px;height:auto;}</style></head><body>' +
+        barcode.outerHTML + '</body></html>'
+    );
+    win.document.close();
+    win.focus();
+    setTimeout(() => { win.print(); }, 300);
+}
+
+function apiBase() {
+    return location.protocol + "//" + location.host;
+}
+
+function copyApiUrl() {
+    const url = apiBase() + "/api/barcode?value=1234567890";
+    navigator.clipboard.writeText(url).then(() => {
+        const btn = event.target;
+        btn.textContent = "Copied!";
+        setTimeout(() => btn.textContent = "Copy URL", 1500);
+    });
+}
+
+function testApi() {
+    const value = document.getElementById("barcodeInput").value.trim() || "1234567890";
+    const result = document.getElementById("apiResult");
+    result.innerHTML = '<img src="' + apiBase() + '/api/barcode?value=' + encodeURIComponent(value) + '" alt="API generated barcode">';
 }
 
 document.getElementById("year").textContent = new Date().getFullYear();

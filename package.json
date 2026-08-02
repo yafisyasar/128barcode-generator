@@ -1,0 +1,12 @@
+{
+  "name": "128barcode-generator",
+  "version": "1.0.0",
+  "description": "Code 128 Barcode Generator with PNG/SVG download and a public REST API",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "bwip-js": "^4.4.0"
+  }
+}

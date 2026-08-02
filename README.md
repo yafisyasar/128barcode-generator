@@ -2,7 +2,7 @@
 
 A simple, modern, and lightweight **Code 128 Barcode Generator** built using HTML, CSS, and JavaScript.
 [Click Here](https://128barcode-generator.vercel.app/) to view.
-This project generates barcodes **live while typing**, with a clean dark theme interface and scanner-friendly output.
+This project generates barcodes **live while typing**, with a clean dark theme interface, scanner-friendly output, and a public REST API for programmatic generation.
 
 ---
 
@@ -14,8 +14,10 @@ This project generates barcodes **live while typing**, with a clean dark theme i
 * ✅ Large, centered barcode display
 * ✅ Scanner-friendly (black on white background)
 * ✅ Fully responsive layout
-* ✅ No backend required
-* ✅ Uses CDN (no installation needed)
+* ✅ **Download as PNG / SVG** (print-ready)
+* ✅ **Print** button (opens a clean print view)
+* ✅ **Public REST API** (`/api/barcode`) — generate barcodes from any app
+* ✅ CORS enabled, no API key required
 
 ---
 
@@ -25,6 +27,8 @@ This project generates barcodes **live while typing**, with a clean dark theme i
 * CSS3
 * JavaScript
 * [JsBarcode](https://github.com/lindell/JsBarcode) (via CDN)
+* [Bwip-JS](https://github.com/metafloor/bwip-js) (server-side API)
+* Node.js (Vercel serverless functions)
 
 ---
 
@@ -42,6 +46,8 @@ git clone https://github.com/your-username/your-repo-name.git
 
 4. Start typing in the input field — the barcode will generate instantly.
 
+5. Use the buttons below the barcode to **download** or **print** it.
+
 ---
 
 ## 🖼️ How It Works
@@ -50,18 +56,72 @@ git clone https://github.com/your-username/your-repo-name.git
 * The `oninput` event triggers the `generateBarcode()` function.
 * JsBarcode renders the barcode dynamically inside the `<svg>` element.
 * If the input is cleared, the barcode disappears automatically.
+* Download/print buttons work from the generated `<svg>` element.
 
 ---
 
-## 📦 Dependency
+## 📡 Barcode API
 
-This project uses JsBarcode via CDN:
+Anyone can generate a barcode without opening the page, using the public REST API.
+
+### GET
+
+```http
+GET /api/barcode?value=1234567890
+```
+
+### POST
+
+```http
+POST /api/barcode
+Content-Type: application/json
+
+{ "value": "1234567890" }
+```
+
+### Response
+
+The response is a **PNG image** (`image/png`) of the Code 128 barcode.
+
+### Optional parameters
+
+| Param    | Type   | Default | Description                 |
+|----------|--------|---------|-----------------------------|
+| `value`  | string | —       | Text to encode (required)   |
+| `scale`  | number | 3       | Pixel size multiplier       |
+| `height` | number | 20      | Bar height (in mm modules)  |
+
+### Example
+
+```bash
+curl -o barcode.png "https://128barcode-generator.vercel.app/api/barcode?value=1234567890"
+```
+
+### Local testing
+
+```bash
+npm install
+npm start
+# then visit http://localhost:3000/api/barcode?value=1234567890
+```
+
+> Note: on Vercel, the function lives at `api/barcode.js` and is deployed automatically.
+
+---
+
+## 📦 Dependencies
+
+### Frontend (CDN)
 
 ```html
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
 ```
 
-No additional installation required.
+### Backend
+
+```json
+{ "dependencies": { "bwip-js": "^4.4.0" } }
+```
 
 ---
 
@@ -70,10 +130,9 @@ No additional installation required.
 You can easily modify:
 
 * Barcode width & height (inside `JsBarcode()` settings)
+* API defaults (in `api/barcode.js`)
 * Theme colors (CSS)
 * Footer text
-* Add export/download button
-* Add print functionality
 * Convert to a PWA
 * Add light/dark mode toggle
 
