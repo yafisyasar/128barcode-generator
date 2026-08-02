@@ -1,7 +1,7 @@
 # 📦 Barcodo — Barcode and QR Code Generator
 
 A simple, modern, and lightweight **Barcode and QR Code Generator** built using HTML, CSS, and JavaScript.
-[Click Here](https://128barcode-generator.vercel.app/) to view.
+[Click Here](https://barcodo.vercel.app/) to view.
 This project generates barcodes **live while typing**, with a clean dark theme interface, scanner-friendly output, fully customizable QR codes, and a public REST API for programmatic generation.
 
 ---
