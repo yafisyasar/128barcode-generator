@@ -44,21 +44,32 @@ module.exports = async function handler(req, res) {
     if (!value) {
         sendJSON(res, 400, {
             error: 'Missing "value" parameter.',
-            usage: 'GET /api/barcode?value=1234567890 or POST { "value": "1234567890" }'
+            usage: 'GET /api/barcode?value=1234567890 or POST { "value": "1234567890" }, use &format=qrcode for QR codes'
         });
         return;
     }
 
+    const format = (query.get('format') || params.format || 'code128').toString().toLowerCase();
+    const isQR = format === 'qrcode' || format === 'qr';
+    const scale = Number(query.get('scale') || params.scale || (isQR ? 8 : 3));
+
     const options = {
-        bcid: 'code128',
+        bcid: isQR ? 'qrcode' : 'code128',
         text: value,
-        scale: Number(query.get('scale') || params.scale || 3),
-        height: Number(query.get('height') || params.height || 20),
-        includetext: true,
-        textxalign: 'center',
+        scale: scale,
         backgroundcolor: 'ffffff',
         barcolor: '000000'
     };
+
+    if (isQR) {
+        let eclevel = (query.get('eclevel') || params.eclevel || 'Q').toString().toUpperCase();
+        if (['L', 'M', 'Q', 'H'].indexOf(eclevel) === -1) eclevel = 'Q';
+        options.eclevel = eclevel;
+    } else {
+        options.height = Number(query.get('height') || params.height || 20);
+        options.includetext = true;
+        options.textxalign = 'center';
+    }
 
     try {
         const png = await bwipjs.toBuffer(options);
