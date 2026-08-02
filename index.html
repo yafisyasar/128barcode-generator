@@ -397,7 +397,6 @@
             <div class="api-usage">
                 <code id="apiUrl">/api/barcode?value=1234567890</code>
                 <button onclick="copyApiUrl()">Copy URL</button>
-                <button onclick="testApi()">Test</button>
             </div>
             <div id="apiResult"></div>
             <p class="api-note">Send a <code>GET /api/barcode?value=1234567890</code> or <code>POST /api/barcode</code> with JSON body <code>{ "value": "1234567890" }</code>. The response is an <code>image/png</code> of the Code 128 barcode. Optional params: <code>scale</code> and <code>height</code>. CORS is enabled, so the API can be called from any domain.</p>
@@ -1001,17 +1000,6 @@ function copyApiUrl() {
         btn.textContent = "Copied!";
         setTimeout(() => btn.textContent = "Copy URL", 1500);
     });
-}
-
-function testApi() {
-    const value = document.getElementById("barcodeInput").value.trim() || "1234567890";
-    const result = document.getElementById("apiResult");
-    result.innerHTML = "";
-    const img = document.createElement("img");
-    img.src = apiBase() + "/api/barcode?value=" + encodeURIComponent(value);
-    img.alt = "API generated barcode";
-    img.onerror = () => showApiError(result, "Barcode API");
-    result.appendChild(img);
 }
 
 function copyQRApiUrl() {
